@@ -132,9 +132,7 @@ export default function Monitoring() {
               variant="primary"
               className="my-2 fw-bolder"
               style={{ width: "10%" }}
-              onClick={() => {
-                handleUpdate(item?.nik);
-              }}
+              onClick={() => handleDetail(item?.nik)}
             >
               Search
             </Button>
