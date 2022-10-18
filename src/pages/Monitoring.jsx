@@ -126,8 +126,18 @@ export default function Monitoring() {
             </Form>
           </Card.Body>
         </Card>
-        <Col className="text-end">
+        <Col className="text-end me-3">
           <Link to={"/add-data"}>
+          <Button
+              variant="primary"
+              className="my-2 fw-bolder"
+              style={{ width: "10%" }}
+              onClick={() => {
+                handleUpdate(item?.nik);
+              }}
+            >
+              Search
+            </Button>
             <Button
               variant="primary"
               className="my-2 fw-bolder"
