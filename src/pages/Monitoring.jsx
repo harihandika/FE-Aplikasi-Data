@@ -15,15 +15,17 @@ import { API } from "../config/api";
 
 export default function Monitoring() {
   let navigate = useNavigate();
+  const [filter, setFilter] = useState([]);
 
   let { data: penduduk, refetch } = useQuery("pendudukCache", async () => {
     const response = await API.get("/datapenduduk");
+    setFilter(response.data)
     return response.data;
   });
 
   const [idDelete, setIdDelete] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
-
+  
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -37,6 +39,38 @@ export default function Monitoring() {
     setConfirmDelete(true);
   };
 
+  const [form, setForm] = useState({
+    nik: "",
+    name: "",
+  });
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+  const handleSubmit = useMutation(async (e) => {
+    try {
+      e.preventDefault();
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      const body = JSON.stringify(form);
+      const response = await API.post("/datapenduduk/search",body, config );
+      console.log("ini respon", response)
+
+      if (response.status === 200) {
+        setFilter(response.data)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  });
+  
   const deleteById = useMutation(async (nik) => {
     try {
       await API.delete("/datapenduduk/" + nik);
@@ -54,6 +88,12 @@ export default function Monitoring() {
     }
   }, [confirmDelete]);
 
+  useEffect(() => {
+    if (form.nik == "" && form.name == "0") {
+      setFilter(penduduk)
+    }
+  }, [penduduk]);
+
   const handleDetail = (nik) => {
     navigate("/detail-data/" + nik);
   };
@@ -61,7 +101,6 @@ export default function Monitoring() {
     navigate("/edit-data/" + nik);
   };
 
-  const [filter, setFilter] = useState("");
   let searchData = (e) => {
     setFilter(e.target.value);
   };
@@ -77,15 +116,24 @@ export default function Monitoring() {
     return age;
   }
 
-  let dataFilter = penduduk?.filter((item) => {
-    if (filter === "") {
-      return item;
-    } else if (item.nik.toLowerCase().includes(filter.toLowerCase())) {
-      return item;
-    } else if (item.name.toLowerCase().includes(filter.toLowerCase())) {
-      return item;
-    }
-  });
+  console.log(filter);
+  // let dataFilter = penduduk?.filter((item) => {
+  //   if (filter === "") {
+  //     return item;
+  //   } else if (item.nik.toLowerCase().includes(filter.toLowerCase())) {
+  //     return item;
+  //   } else if (item.name.toLowerCase().includes(filter.toLowerCase())) {
+  //     return item;
+  //   }
+  // });
+let address = penduduk?.map((item) => {
+  if (item.address.length >= 30){
+    return item.address.substring(0,30) + "..."
+  }else {
+    return item.address
+  }
+})
+console.log("ini des", address)
 
   return (
     <div>
@@ -98,17 +146,18 @@ export default function Monitoring() {
         </h3>
         <Card className=" bg-search">
           <Card.Body>
-            <Form>
+            <Form onSubmit={(e) => handleSubmit.mutate(e)}>
               <Form.Group>
                 <Form.Label className="t fw-bolder opacity-75">
                   NIK
                 </Form.Label>
                 <Form.Control
-                  type="search"
+                  type="text"
                   id="nik"
                   name="nik"
                   style={{ width: "30%" }}
-                  onChange={searchData.bind(this)}
+                  onChange={handleChange}
+                  // onChange={searchData.bind(this)}
                 />
               </Form.Group>
               <Form.Group>
@@ -116,21 +165,21 @@ export default function Monitoring() {
                   Name
                 </Form.Label>
                 <Form.Control
-                  type="search"
+                  type="text"
                   id="name"
                   name="name"
-                  onChange={searchData.bind(this)}
+                  onChange={handleChange}
+                  // onChange={searchData.bind(this)}
                   style={{ width: "30%" }}
                 />
               </Form.Group>
-            </Form>
-          </Card.Body>
-        </Card>
         <Col className="text-end">
           <Button
+          type="submit"
               variant="primary"
-              className="my-2 fw-bolder"
+              className="my-2 fw-bolder me-3"
               style={{ width: "10%" }}
+              // onClick={handleSubmit}
             >
               Search
             </Button>
@@ -144,6 +193,9 @@ export default function Monitoring() {
             </Button>
           </Link>
         </Col>
+            </Form>
+          </Card.Body>
+        </Card>
         <Table responsive striped bordered hover className="text-center">
           <thead>
             <tr className="bg-primary opacity-90 text-black">
@@ -159,7 +211,7 @@ export default function Monitoring() {
             </tr>
           </thead>
           <tbody>
-            {dataFilter?.map((item, index) => (
+            {filter?.map((item, index) => (
               <tr key={index} className="opacity-75">
                 <td>{index + 1}</td>
                 <td>{item?.nik}</td>
@@ -168,7 +220,7 @@ export default function Monitoring() {
                 <td>{item?.birth}</td>
                 <td>{item?.gender}</td>
                 <td>
-                  {item.address}
+                  {item?.address.length >= 30 ? item.address.substring(0,30) + "..." : item.address }
                 </td>
                 <td>{item?.country}</td>
                 <td className="d-flex gap-3">

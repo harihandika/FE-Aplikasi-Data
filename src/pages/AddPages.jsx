@@ -87,7 +87,7 @@ export default function AddPages() {
                 type="radio"
                 name="gender"
                 id="male"
-                value="Laki-Laki"
+                value="Laki-laki"
                 onChange={handleChange}
                 required
               />
@@ -149,12 +149,7 @@ export default function AddPages() {
             </option>
             <option value="Indonesia">Indonesia</option>
             <option value="Malaysia">Malaysia</option>
-            <option value="Singapura">Singapura</option>
-            <option value="Jerman">Jerman</option>
-            <option value="Inggris">Inggris</option>
-            <option value="Brazil">Brazil</option>
-            <option value="Jepang">Jepang</option>
-            <option value="China">China</option>
+     
           </select>
 
                 </Col>
