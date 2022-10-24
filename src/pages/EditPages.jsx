@@ -34,7 +34,9 @@ export default function EditPages() {
       colour: response.data.colour,
       fuel: response.data.fuel,
     });
+    return response
   });
+  console.log(datapenduduk1);
 
   const handleInput = (e) => {
     if (e.target.value.length > e.target.maxLength)
